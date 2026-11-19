@@ -1,6 +1,6 @@
 # PCP — Portal PCP da Medicinal
 
-Painel de produção: quantas fórmulas estão em cada setor e em cada limbo, por laboratório, data e faixa de retirada. Os dados vêm do FórmulaCerta (réplica Firebird), passam pelo n8n e ficam no Supabase **formulaCerta**. O portal é publicado no site pelo Brasa CMS, no mesmo molde dos outros portais da casa (Vendedor, Orçamentista, PortalSiteMedicinal).
+Painel de produção: quantas fórmulas estão em cada setor e em cada limbo, por laboratório, data e faixa de retirada. Os dados vêm do FórmulaCerta (réplica Firebird), passam pelo n8n e ficam no Supabase **formulaCerta**. O app fica no Supabase, no mesmo molde dos outros portais da casa (`_brasa_parts_*` + `brasa_loader_*()`), e é aberto por uma página estática hospedada na **Infalltech** (CloudPanel). O servidor antigo da Brasa não é mais usado.
 
 ## Como funciona
 
@@ -12,9 +12,9 @@ Supabase formulaCerta: pcp_requisicao (+ pcp_etapa, pcp_feriado)
   │  funções rpc (pcp_painel etc.), só para quem tem acesso
   ▼
 Portal PCP: app em _brasa_parts_pcp, servido por brasa_loader_pcp()
-  │  página do site no Brasa CMS, rota /pcp
+  │  portal/index.html (página estática na Infalltech/CloudPanel) busca o app e o abre
   ▼
-www.medicinalnaweb.com.br/pcp  (login por e-mail com código)
+endereço do portal na Infalltech  (login por e-mail com código)
 ```
 
 ## Regras de negócio
@@ -55,7 +55,7 @@ www.medicinalnaweb.com.br/pcp  (login por e-mail com código)
 4. **Publicação do app:**
    - mandar o HTML em texto puro para `_<x>_stage` em partes, conferindo o md5 de cada parte;
    - rodar o bloco de `pcp_004_publica_portal.sql`, que confere o md5 total, grava o base64 em `_brasa_parts_<x>` e confere `md5(brasa_loader_<x>())`.
-5. **Site:** criar no Brasa CMS a página da rota (`/pcp`) que injeta o retorno de `brasa_loader_pcp()`, como já é feito nas rotas `/vendedor` e `/orcamentista`. Esse passo é manual, feito por quem administra o Brasa CMS.
+5. **Hospedagem (Infalltech/CloudPanel):** publicar uma única vez o arquivo `portal/index.html` como site estático (ex.: `pcp.medicinalnaweb.com.br`), com DNS apontando para o servidor da Infalltech e certificado Let's Encrypt. Essa página só busca o app em `brasa_loader_pcp()`. Por isso as atualizações do portal são feitas só no banco (passo 4), sem mexer no servidor.
 6. **Acessos:** o administrador cadastra os e-mails na aba "Acessos" do portal.
 
 ## Carga de dados (n8n, instância principal)
