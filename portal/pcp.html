@@ -1,0 +1,416 @@
+<style>
+/* Portal PCP — formulaCerta. Fragmento injetado pelo Brasa CMS na rota /pcp*.
+   Todo CSS escopado sob #pcproot: nada vaza para o site. */
+#pcproot{
+  --bg:#f2f4f7; --card:#fff; --ink:#111a24; --mut:#5d6b7a; --line:#dde3ea;
+  --brand:#1f4e8c; --brand2:#2d6cc0; --lab:#2e7d5b; --labbg:#e6f2ec;
+  --ok:#1f7a4d; --err:#b3261e; --bad:#b3261e;
+  --shadow:0 1px 2px rgba(17,26,36,.06),0 8px 24px rgba(17,26,36,.06);
+  --radius:14px;
+  position:fixed; inset:0; z-index:99999; overflow-y:auto; overflow-x:hidden;
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:16px; line-height:1.45; text-align:left;
+}
+#pcproot *{box-sizing:border-box; margin:0; padding:0; font-family:inherit}
+#pcproot .hidden{display:none!important}
+#pcproot .wrap{max-width:1280px; margin:0 auto; padding:20px 16px 64px; display:grid; gap:16px}
+#pcproot .login{max-width:420px; margin:8vh auto; background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:26px}
+#pcproot .login h1{font-size:22px; margin-bottom:4px}
+#pcproot p.sub{color:var(--mut); font-size:14px}
+#pcproot .login p.sub{margin-bottom:18px}
+#pcproot label{display:block; font-size:13px; color:var(--mut); margin:12px 0 5px; font-weight:600}
+#pcproot input,#pcproot select{width:100%; font-size:16px; padding:11px 12px; border:1px solid var(--line); border-radius:10px; background:#fff; color:var(--ink)}
+#pcproot input:focus,#pcproot select:focus,#pcproot button:focus-visible,#pcproot summary:focus-visible{outline:2px solid var(--brand2); outline-offset:1px}
+#pcproot button{font-size:15px; font-weight:600; padding:11px 16px; border:0; border-radius:10px; background:var(--brand); color:#fff; cursor:pointer}
+#pcproot button:disabled{opacity:.55; cursor:default}
+#pcproot button.sec{background:#fff; color:var(--brand); border:1px solid var(--line)}
+#pcproot button.mini{font-size:13px; padding:7px 11px}
+#pcproot .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+#pcproot .err{color:var(--err); font-size:14px; min-height:20px; margin-top:10px}
+#pcproot .ok{color:var(--ok); font-size:14px; min-height:20px; margin-top:4px}
+#pcproot header.top{background:var(--card); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:5}
+#pcproot .topin{max-width:1280px; margin:0 auto; padding:12px 16px; display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap}
+#pcproot .brand{display:flex; align-items:center; gap:10px; min-width:0}
+#pcproot .dot{width:9px; height:9px; border-radius:50%; background:var(--brand)}
+#pcproot .brand b{font-size:17px; display:block}
+#pcproot .brand span{font-size:12px; color:var(--mut)}
+#pcproot nav.tabs{display:flex; gap:6px}
+#pcproot nav.tabs button{background:transparent; color:var(--mut); border:1px solid transparent; padding:7px 12px; font-size:14px}
+#pcproot nav.tabs button.on{background:var(--bg); color:var(--ink); border-color:var(--line)}
+#pcproot .quem{font-size:13px; color:var(--mut)}
+#pcproot .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px}
+#pcproot h2{font-size:20px}
+#pcproot .status{display:flex; gap:12px; flex-wrap:wrap; align-items:baseline; justify-content:space-between}
+#pcproot details.bloco{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:14px 16px; display:grid; gap:10px}
+#pcproot details.bloco>summary{cursor:pointer; display:flex; gap:10px; align-items:baseline; flex-wrap:wrap}
+#pcproot .bnome{font-size:20px; font-weight:700}
+#pcproot .besp{color:var(--mut); font-size:13px}
+#pcproot .btot{margin-left:auto; font-size:20px; font-variant-numeric:tabular-nums}
+#pcproot .tw{overflow-x:auto}
+#pcproot table.mapa{table-layout:fixed; width:max-content; border-collapse:separate; border-spacing:0; font-variant-numeric:tabular-nums}
+#pcproot table.mapa col.c-lin{width:150px} #pcproot table.mapa col.c-set{width:86px} #pcproot table.mapa col.c-lim{width:30px} #pcproot table.mapa col.c-tot{width:70px}
+#pcproot table.mapa th,#pcproot table.mapa td{padding:6px 4px; text-align:center; border-bottom:1px solid var(--line); overflow:hidden; text-overflow:ellipsis; font-size:13px}
+#pcproot table.mapa thead th{vertical-align:bottom; white-space:normal; line-height:1.15; color:var(--mut)}
+#pcproot table.mapa thead th.setor{font-weight:700; color:var(--ink)}
+#pcproot table.mapa thead th.limbo{padding:6px 0; font-weight:400}
+#pcproot table.mapa thead th.limbo span{writing-mode:vertical-rl; transform:rotate(180deg); display:inline-block; letter-spacing:.04em}
+#pcproot table.mapa th.lin{position:sticky; left:0; background:var(--card); text-align:left; color:var(--ink); z-index:1; padding-left:6px; white-space:nowrap}
+#pcproot table.mapa td.limbo{font-style:italic}
+#pcproot table.mapa td.vazio{color:#9aa6b2}
+#pcproot table.mapa td.forte{font-weight:700}
+#pcproot table.mapa td.tot{font-weight:600}
+#pcproot table.mapa .lab{background:var(--labbg)}
+#pcproot table.mapa .lab-ini{border-left:2px solid var(--lab)} #pcproot table.mapa .lab-fim{border-right:2px solid var(--lab)}
+#pcproot table.mapa tr.grupos th{border-bottom:none; padding:4px 0 0}
+#pcproot table.mapa th.lab-titulo{border-top:2px solid var(--lab); color:var(--lab); font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:6px 4px; border-radius:8px 8px 0 0}
+#pcproot table.mapa tr.dia th.lin{font-weight:600}
+#pcproot table.mapa tr.dia td{font-size:15px}
+#pcproot table.mapa tr.d0 th.lin{font-size:18px}
+#pcproot table.mapa tr.d0 td{font-size:18px; padding-block:10px}
+#pcproot table.mapa tr.hora th.lin{padding-left:30px; font-weight:400; color:var(--mut)}
+#pcproot table.mapa tr.d0h th.lin{color:var(--ink)}
+#pcproot table.mapa tr.atrasada th.lin{color:var(--bad)}
+#pcproot table.mapa tr.total th,#pcproot table.mapa tr.total td{border-top:2px solid var(--line); font-weight:600}
+#pcproot button.seta{all:unset; cursor:pointer; display:inline-flex; align-items:center; gap:6px}
+#pcproot button.seta i{display:inline-block; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:6px solid currentColor; transition:transform .15s}
+#pcproot button.seta[aria-expanded="false"] i{transform:rotate(-90deg)}
+#pcproot .seta-fixa{display:inline-block; width:10px; margin-right:6px}
+#pcproot table.lista{border-collapse:collapse; width:100%; font-size:14px}
+#pcproot table.lista th,#pcproot table.lista td{padding:8px 6px; border-bottom:1px solid var(--line); text-align:left}
+#pcproot .form{display:grid; grid-template-columns:2fr 2fr 1fr auto; gap:8px; align-items:end}
+@media (max-width:720px){ #pcproot .form{grid-template-columns:1fr} }
+@media (prefers-reduced-motion:reduce){ #pcproot button.seta i{transition:none} }
+</style>
+
+<div id="pcproot">
+  <div class="login" id="pcpLogin">
+    <h1>Portal PCP</h1>
+    <p class="sub">Fórmulas em produção por laboratório, setor e horário de retirada.</p>
+    <div id="pcpStep1">
+      <label for="pcpEmail">E-mail</label>
+      <input id="pcpEmail" type="email" autocomplete="email" placeholder="seu@email">
+      <div class="row" style="margin-top:14px"><button id="pcpSend" type="button">Enviar código</button></div>
+    </div>
+    <div id="pcpStep2" class="hidden">
+      <p class="sub">Enviamos um código para <b id="pcpEcho"></b>.</p>
+      <label for="pcpCode">Código</label>
+      <input id="pcpCode" inputmode="numeric" autocomplete="one-time-code" placeholder="000000">
+      <div class="row" style="margin-top:14px"><button id="pcpVerify" type="button">Entrar</button><button id="pcpResend" class="sec" type="button">Reenviar</button></div>
+    </div>
+    <div class="err" id="pcpErr"></div><div class="ok" id="pcpOk"></div>
+  </div>
+
+  <div id="pcpApp" class="hidden">
+    <header class="top"><div class="topin">
+      <div class="brand"><span class="dot"></span><div><b>Portal PCP</b><span>Medicinal · produção</span></div></div>
+      <nav class="tabs"><button type="button" data-tab="painel" class="on">Painel</button><button type="button" data-tab="acessos" class="hidden">Acessos</button></nav>
+      <div class="row"><span class="quem" id="pcpQuem"></span><button class="sec mini" id="pcpSair" type="button">Sair</button></div>
+    </div></header>
+
+    <div class="wrap" id="tab-painel">
+      <div class="card status">
+        <div><h2>Fórmulas em produção por laboratório</h2>
+        <p class="sub">Da Ficha ao Rótulo, com o limbo entre os setores (saiu de um e ainda não entrou no próximo). Hoje (D0) aparece aberto por faixa de retirada; as outras datas abrem pela seta. Cada horário entra na próxima faixa fixa: 16h loja, 18h entrega manhã, 19h entrega tarde, 20h Sedex 67, 21h Sedex MaisCabello, 22h Sedex. Cor: do azul (poucas fórmulas) ao vermelho (concentração).</p></div>
+        <div class="row"><span class="quem" id="pcpAtual">—</span><button class="sec mini" id="pcpAtualizar" type="button">Atualizar</button></div>
+      </div>
+      <div id="pcpBlocos"></div>
+      <div class="err" id="pcpErrApp"></div>
+    </div>
+
+    <div class="wrap hidden" id="tab-acessos">
+      <div class="card">
+        <h2>Acessos</h2>
+        <p class="sub">Quem entra no portal com e-mail e código. Leitor vê o painel; administrador também cadastra acessos.</p>
+        <div class="form" style="margin-top:12px">
+          <div><label for="acEmail">E-mail</label><input id="acEmail" type="email"></div>
+          <div><label for="acNome">Nome</label><input id="acNome"></div>
+          <div><label for="acPapel">Papel</label><select id="acPapel"><option value="leitor">Leitor</option><option value="admin">Administrador</option></select></div>
+          <div><button id="acSalvar" type="button">Salvar acesso</button></div>
+        </div>
+        <div class="err" id="acErr"></div>
+        <div class="tw" style="margin-top:12px"><table class="lista"><thead><tr><th>E-mail</th><th>Nome</th><th>Papel</th><th>Situação</th><th></th></tr></thead><tbody id="acLista"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var API  = 'https://mwhlnlqxtudcgbggkqud.supabase.co';
+var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13aGxubHF4dHVkY2diZ2drcXVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NjYyNDgsImV4cCI6MjEwMDI0MjI0OH0.awJmlZnBy4RpTMr1lfL4uIKXmKwm7ItzR9W42BAZRnc';
+var SKEY = 'pcp_sess';
+var SESS = null, ME = null, DADOS = null, ABERTOS = {}, TIMER = null;
+
+function $(id){ return document.getElementById(id); }
+function n0(v){ return (v == null || v === '') ? '—' : Number(v).toLocaleString('pt-BR',{maximumFractionDigits:0}); }
+function erro(m){ $('pcpErr').textContent = m || ''; $('pcpOk').textContent = ''; }
+function aviso(m){ $('pcpOk').textContent = m || ''; $('pcpErr').textContent = ''; }
+function el(tag, cls, txt){ var e = document.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+
+/* sessão */
+function guarda(s){ SESS = s; try{ localStorage.setItem(SKEY, JSON.stringify(s)); }catch(e){} }
+function limpa(){ SESS = null; ME = null; try{ localStorage.removeItem(SKEY); }catch(e){} }
+function le(){ try{ var r = localStorage.getItem(SKEY); return r ? JSON.parse(r) : null; }catch(e){ return null; } }
+function expirada(s){ if(!s || !s.expires_at) return true; return (Number(s.expires_at)*1000) - Date.now() < 60000; }
+async function renova(){
+  if(!SESS || !SESS.refresh_token) return false;
+  var r = await fetch(API + '/auth/v1/token?grant_type=refresh_token', {method:'POST', headers:{'apikey':ANON,'Content-Type':'application/json'}, body: JSON.stringify({refresh_token: SESS.refresh_token})});
+  if(!r.ok){ limpa(); return false; }
+  var d = await r.json();
+  if(!d || !d.access_token){ limpa(); return false; }
+  guarda({access_token:d.access_token, refresh_token:d.refresh_token, expires_at:d.expires_at});
+  return true;
+}
+function cab(){ var t = (SESS && SESS.access_token) ? SESS.access_token : ANON; return {'apikey':ANON,'Authorization':'Bearer ' + t,'Content-Type':'application/json'}; }
+function semSessao(){ limpa(); telaLogin(); erro('Sua sessão expirou. Entre novamente.'); throw new Error('sessao'); }
+async function rpc(fn, args){
+  if(SESS && expirada(SESS)){ var ok = await renova(); if(!ok) semSessao(); }
+  var r = await fetch(API + '/rest/v1/rpc/' + fn, {method:'POST', headers:cab(), body: JSON.stringify(args || {})});
+  if(r.status === 401 || r.status === 403) semSessao();
+  var txt = await r.text();
+  if(!r.ok){ var msg = txt; try{ var j = JSON.parse(txt); msg = j.message || j.hint || txt; }catch(e){} throw new Error(String(msg).slice(0,220)); }
+  return txt ? JSON.parse(txt) : null;
+}
+
+/* login */
+function telaLogin(){
+  if(TIMER){ clearInterval(TIMER); TIMER = null; }
+  $('pcpApp').classList.add('hidden'); $('pcpLogin').classList.remove('hidden');
+  $('pcpStep2').classList.add('hidden'); $('pcpStep1').classList.remove('hidden');
+}
+async function envia(reenvio){
+  var email = ($('pcpEmail').value || '').trim().toLowerCase();
+  erro('');
+  if(!email || email.indexOf('@') < 1){ erro('Informe um e-mail válido.'); return; }
+  var btn = reenvio ? $('pcpResend') : $('pcpSend'); btn.disabled = true;
+  try{
+    var autorizado = await rpc('pcp_email_autorizado', {p_email: email});
+    if(!autorizado){ erro('E-mail não cadastrado ou inativo. Fale com o administrador do PCP.'); return; }
+    var r = await fetch(API + '/auth/v1/otp', {method:'POST', headers:{'apikey':ANON,'Content-Type':'application/json'}, body: JSON.stringify({email: email, create_user: false})});
+    if(!r.ok) throw new Error(String(await r.text()).slice(0,200));
+    $('pcpEcho').textContent = email;
+    $('pcpStep1').classList.add('hidden'); $('pcpStep2').classList.remove('hidden');
+    $('pcpCode').value = ''; $('pcpCode').focus();
+    if(reenvio) aviso('Código reenviado.');
+  }catch(e){ erro(e.message || 'Não foi possível enviar o código.'); }
+  finally{ btn.disabled = false; }
+}
+async function verifica(){
+  var email = ($('pcpEmail').value || '').trim().toLowerCase();
+  var token = ($('pcpCode').value || '').trim();
+  erro('');
+  if(!token){ erro('Informe o código.'); return; }
+  $('pcpVerify').disabled = true;
+  try{
+    var r = await fetch(API + '/auth/v1/verify', {method:'POST', headers:{'apikey':ANON,'Content-Type':'application/json'}, body: JSON.stringify({type:'email', email: email, token: token})});
+    if(!r.ok) throw new Error('Código inválido ou expirado.');
+    var d = await r.json();
+    if(!d || !d.access_token) throw new Error('Resposta de autenticação inesperada.');
+    guarda({access_token:d.access_token, refresh_token:d.refresh_token, expires_at:d.expires_at});
+    await inicia();
+  }catch(e){ if(String(e.message) !== 'sessao') erro(e.message || 'Código inválido ou expirado.'); }
+  finally{ $('pcpVerify').disabled = false; }
+}
+
+/* início */
+async function inicia(){
+  var eu = await rpc('pcp_vincular', {});
+  ME = (eu && eu.length) ? eu[0] : null;
+  if(!ME){ limpa(); telaLogin(); erro('Seu e-mail entrou, mas não tem acesso ao Portal PCP. Fale com o administrador.'); return; }
+  $('pcpLogin').classList.add('hidden'); $('pcpApp').classList.remove('hidden');
+  $('pcpQuem').textContent = ME.email + (ME.papel === 'admin' ? ' · administrador' : '');
+  var ba = document.querySelector('#pcproot nav.tabs button[data-tab="acessos"]');
+  if(ME.papel === 'admin') ba.classList.remove('hidden'); else ba.classList.add('hidden');
+  await carrega();
+  if(TIMER) clearInterval(TIMER);
+  TIMER = setInterval(function(){ if(!document.hidden) carrega().catch(function(){}); }, 120000);
+}
+
+/* painel */
+var GRUPOS = [
+  {nome:'Interno', esp:'espécie 1', fluxo:['Ficha','Pesagem','Homogeneiz.','Manipulação','Conferência','Rótulo']},
+  {nome:'Diferenciados', esp:'espécies 5 e 6', fluxo:['Ficha','Pesagem','Homogeneiz.','Manipulação','Conferência','Rótulo']},
+  {nome:'Externo', esp:'espécies 2, 3 e 4', fluxo:['Ficha','Manip. externo','Rótulo']},
+  {nome:'Sachês', esp:'espécie 15', fluxo:['Ficha','Pesagem','Homogeneiz.','Manipulação','Conferência','Rótulo']}
+];
+var ORDEM = ['D0','D1','D2','D3','D4','D5','D6+','Atrasada'];
+var CORES = [[207,227,247],[127,179,230],[247,211,107],[240,138,60],[215,48,31],[153,0,13]];
+function calor(p){
+  p = Math.max(0, Math.min(1, p)); var x = p * (CORES.length - 1); var i = Math.min(CORES.length - 2, Math.floor(x)); var f = x - i;
+  var a = CORES[i], b = CORES[i+1];
+  return [0,1,2].map(function(k){ return Math.round(a[k] + (b[k]-a[k]) * f); });
+}
+function rotulo(b){
+  if(b === 'Atrasada') return 'Atrasadas';
+  if(b === 'D6+') return 'D6 em diante';
+  var n = +b.slice(1); var h = new Date(); var d = new Date(h.getFullYear(), h.getMonth(), h.getDate() + n);
+  return b + ' · ' + d.toLocaleDateString('pt-BR', {weekday:'short', day:'2-digit', month:'2-digit'});
+}
+async function carrega(){
+  $('pcpErrApp').textContent = '';
+  $('pcpAtualizar').disabled = true;
+  try{
+    DADOS = await rpc('pcp_painel', {});
+    var at = DADOS && DADOS.atualizado_em ? new Date(DADOS.atualizado_em) : null;
+    $('pcpAtual').textContent = at ? 'Dados do FórmulaCerta de ' + at.toLocaleDateString('pt-BR') + ' às ' + at.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : 'Sem carga de dados';
+    desenhaBlocos();
+  }catch(e){ if(String(e.message) !== 'sessao') $('pcpErrApp').textContent = e.message || 'Não foi possível carregar o painel.'; }
+  finally{ $('pcpAtualizar').disabled = false; }
+}
+function desenhaBlocos(){
+  var box = $('pcpBlocos');
+  var abertosBloco = {};
+  box.querySelectorAll('details.bloco').forEach(function(d){ abertosBloco[d.dataset.g] = d.open; });
+  box.replaceChildren();
+  var linhas = (DADOS && DADOS.linhas) || [], esp = (DADOS && DADOS.especies) || [];
+  GRUPOS.forEach(function(g){
+    var rows = linhas.filter(function(r){ return r.grupo === g.nome; });
+    var det = el('details', 'bloco'); det.dataset.g = g.nome; det.open = abertosBloco[g.nome] !== false;
+    var sm = el('summary');
+    sm.append(el('span','bnome',g.nome), el('span','besp',g.esp));
+    var tot = rows.reduce(function(s,r){ return s + r.n; }, 0);
+    sm.append(el('span','btot', n0(tot) + ' fórmulas'));
+    det.appendChild(sm);
+    var es = esp.filter(function(r){ return r.grupo === g.nome; });
+    if(es.length > 1){ det.appendChild(el('p','sub','Por espécie: ' + es.map(function(r){ return 'espécie ' + r.especie + ' ' + n0(r.n); }).join(' · '))); }
+    var tw = el('div','tw'); tw.appendChild(tabela(g, rows)); det.appendChild(tw);
+    box.appendChild(det);
+  });
+}
+function tabela(g, rows){
+  var t = el('table','mapa');
+  if(!rows.length){ var tr0 = t.insertRow(); var td0 = tr0.insertCell(); td0.textContent = 'Nenhuma fórmula em produção.'; td0.className = 'vazio'; return t; }
+  var cols = [];
+  g.fluxo.forEach(function(s, i, arr){
+    var lab = s === 'Manipulação' || s === 'Manip. externo';
+    cols.push({setor:s, tipo:'setor', lab:lab});
+    if(i < arr.length - 1) cols.push({setor:s, tipo:'limbo', lab:false});
+  });
+  cols.forEach(function(c, i){ c.ini = c.lab && !(cols[i-1] && cols[i-1].lab); c.fim = c.lab && !(cols[i+1] && cols[i+1].lab); });
+  function labCls(e, c){ if(c.lab){ e.classList.add('lab'); if(c.ini) e.classList.add('lab-ini'); if(c.fim) e.classList.add('lab-fim'); } }
+  var porHora = {}, porDia = {}, horas = {};
+  rows.forEach(function(r){
+    var kh = r.retirada + '|' + r.horario + '|' + r.setor + '|' + r.tipo; porHora[kh] = (porHora[kh] || 0) + r.n;
+    var kd = r.retirada + '|' + r.setor + '|' + r.tipo; porDia[kd] = (porDia[kd] || 0) + r.n;
+    (horas[r.retirada] = horas[r.retirada] || {})[r.horario] = 1;
+  });
+  var maxDia = Math.max.apply(null, Object.values(porDia).concat([1]));
+  var maxHora = Math.max.apply(null, Object.values(porHora).concat([1]));
+  var cg = el('colgroup');
+  function col(c){ var x = el('col', c); cg.appendChild(x); }
+  col('c-lin'); cols.forEach(function(c){ col(c.tipo === 'setor' ? 'c-set' : 'c-lim'); }); col('c-tot');
+  t.appendChild(cg);
+  var th = t.createTHead();
+  var gr = th.insertRow(); gr.className = 'grupos'; gr.appendChild(el('th','lin'));
+  var i = 0;
+  while(i < cols.length){
+    var h = el('th');
+    if(cols[i].lab){ h.className = 'lab lab-ini lab-fim lab-titulo'; h.textContent = 'Laboratório'; h.colSpan = 1; i++; }
+    else i++;
+    gr.appendChild(h);
+  }
+  gr.appendChild(el('th'));
+  var hr = th.insertRow(); hr.appendChild(el('th','lin','Retirada'));
+  cols.forEach(function(c){
+    var x = el('th');
+    if(c.tipo === 'setor'){ x.className = 'setor'; x.textContent = c.setor; }
+    else { x.className = 'limbo'; x.title = 'Limbo: saiu de ' + c.setor + ' e aguarda a próxima etapa'; x.appendChild(el('span', null, 'limbo')); }
+    labCls(x, c); hr.appendChild(x);
+  });
+  hr.appendChild(el('th','setor','Total'));
+  var tb = t.createTBody();
+  function pinta(td, v, max){
+    if(!v){ td.textContent = '·'; td.classList.add('vazio'); return; }
+    td.textContent = n0(v);
+    var c = calor(Math.sqrt(v / max)); td.style.background = 'rgb(' + c.join(',') + ')';
+    var lum = (0.299*c[0] + 0.587*c[1] + 0.114*c[2]) / 255;
+    td.style.color = lum < 0.55 ? '#fff' : '#1a1a1a'; if(lum < 0.55) td.classList.add('forte');
+  }
+  function linha(cls, rot, getV, max){
+    var tr = tb.insertRow(); tr.className = cls;
+    var h = el('th','lin'); h.scope = 'row'; if(rot instanceof Node) h.appendChild(rot); else h.textContent = rot; tr.appendChild(h);
+    var tot = 0;
+    cols.forEach(function(c){ var td = tr.insertCell(); var v = getV(c) || 0; tot += v; if(c.tipo === 'limbo') td.classList.add('limbo'); labCls(td, c); pinta(td, v, max); });
+    var tt = tr.insertCell(); tt.className = 'tot'; tt.textContent = n0(tot);
+  }
+  ORDEM.filter(function(b){ return horas[b]; }).forEach(function(b){
+    var d0 = b === 'D0', chave = g.nome + '|' + b, aberto = d0 || !!ABERTOS[chave], rot;
+    if(d0){ rot = el('span'); rot.append(el('span','seta-fixa'), rotulo(b)); }
+    else {
+      rot = el('button','seta'); rot.type = 'button'; rot.setAttribute('aria-expanded', String(aberto));
+      rot.append(el('i'), rotulo(b));
+      rot.addEventListener('click', function(){ ABERTOS[chave] = !ABERTOS[chave]; desenhaBlocos(); });
+    }
+    linha('dia' + (d0 ? ' d0' : '') + (b === 'Atrasada' ? ' atrasada' : ''), rot, function(c){ return porDia[b + '|' + c.setor + '|' + c.tipo]; }, maxDia);
+    if(aberto){
+      Object.keys(horas[b]).sort().forEach(function(hh){
+        linha('hora' + (d0 ? ' d0h' : ''), hh, function(c){ return porHora[b + '|' + hh + '|' + c.setor + '|' + c.tipo]; }, maxHora);
+      });
+    }
+  });
+  var tr = tb.insertRow(); tr.className = 'total'; tr.appendChild(el('th','lin','Total'));
+  var all = 0;
+  cols.forEach(function(c){ var v = 0; rows.forEach(function(r){ if(r.setor === c.setor && r.tipo === c.tipo) v += r.n; }); all += v; var td = tr.insertCell(); td.textContent = n0(v); if(c.tipo === 'limbo') td.classList.add('limbo'); labCls(td, c); });
+  var ta = tr.insertCell(); ta.className = 'tot'; ta.textContent = n0(all);
+  return t;
+}
+
+/* acessos (admin) */
+async function carregaAcessos(){
+  $('acErr').textContent = '';
+  try{
+    var lst = await rpc('pcp_acessos_ler', {}) || [];
+    var tb = $('acLista'); tb.replaceChildren();
+    lst.forEach(function(a){
+      var tr = tb.insertRow();
+      tr.insertCell().textContent = a.email; tr.insertCell().textContent = a.nome || '';
+      tr.insertCell().textContent = a.papel === 'admin' ? 'Administrador' : 'Leitor';
+      tr.insertCell().textContent = a.ativo ? 'Ativo' : 'Inativo';
+      var c = tr.insertCell(); var b = el('button','sec mini', a.ativo ? 'Desativar' : 'Reativar'); b.type = 'button';
+      b.addEventListener('click', async function(){
+        b.disabled = true;
+        try{ await rpc('pcp_acesso_gravar', {p_email:a.email, p_nome:a.nome, p_papel:a.papel, p_ativo:!a.ativo}); await carregaAcessos(); }
+        catch(e){ $('acErr').textContent = e.message; b.disabled = false; }
+      });
+      c.appendChild(b);
+    });
+  }catch(e){ if(String(e.message) !== 'sessao') $('acErr').textContent = e.message; }
+}
+async function salvaAcesso(){
+  $('acErr').textContent = '';
+  var email = ($('acEmail').value || '').trim().toLowerCase();
+  if(!email || email.indexOf('@') < 1){ $('acErr').textContent = 'Informe um e-mail válido.'; return; }
+  $('acSalvar').disabled = true;
+  try{
+    await rpc('pcp_acesso_gravar', {p_email:email, p_nome:$('acNome').value, p_papel:$('acPapel').value, p_ativo:true});
+    $('acEmail').value = ''; $('acNome').value = '';
+    await carregaAcessos();
+  }catch(e){ if(String(e.message) !== 'sessao') $('acErr').textContent = e.message; }
+  finally{ $('acSalvar').disabled = false; }
+}
+
+/* eventos */
+$('pcpSend').addEventListener('click', function(){ envia(false); });
+$('pcpResend').addEventListener('click', function(){ envia(true); });
+$('pcpVerify').addEventListener('click', verifica);
+$('pcpEmail').addEventListener('keydown', function(e){ if(e.key === 'Enter') envia(false); });
+$('pcpCode').addEventListener('keydown', function(e){ if(e.key === 'Enter') verifica(); });
+$('pcpSair').addEventListener('click', function(){ limpa(); telaLogin(); aviso('Você saiu.'); });
+$('pcpAtualizar').addEventListener('click', function(){ carrega(); });
+$('acSalvar').addEventListener('click', salvaAcesso);
+document.querySelectorAll('#pcproot nav.tabs button').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('#pcproot nav.tabs button').forEach(function(x){ x.classList.toggle('on', x === b); });
+    $('tab-painel').classList.toggle('hidden', b.dataset.tab !== 'painel');
+    $('tab-acessos').classList.toggle('hidden', b.dataset.tab !== 'acessos');
+    if(b.dataset.tab === 'acessos') carregaAcessos();
+  });
+});
+
+SESS = le();
+if(SESS){ inicia().catch(function(e){ if(String(e.message) !== 'sessao'){ limpa(); telaLogin(); erro(e.message); } }); }
+else telaLogin();
+})();
+</script>
