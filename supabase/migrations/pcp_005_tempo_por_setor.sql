@@ -1,0 +1,5 @@
+-- Tempo por setor (Ficha, Pesagem, Homogeneização, Manipulação, Conferência, Rótulo) em s_<setor>_ini/_min/_util,
+-- calculado pelo gatilho pcp_requisicao_calc_util, e a função pcp_tempos_semana(ano, grupo) para a aba Tempos do portal.
+-- Aplicada em 23/11/2026 no projeto formulaCerta (nome da migração: pcp_005_tempo_por_setor).
+-- Atenção: pelo cadastro FC12540, CDETAPA 20 = I_HOMO (homogeneização) está nas colunas conferencia_* e
+-- CDETAPA 03 = I_CONF (conferência interna) nas colunas homogeneizacao_*, herança do pivô do PCP_v19.

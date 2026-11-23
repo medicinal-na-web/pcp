@@ -86,6 +86,17 @@
 #pcproot table.lista th,#pcproot table.lista td{padding:8px 6px; border-bottom:1px solid var(--line); text-align:left}
 #pcproot .form{display:grid; grid-template-columns:2fr 2fr 1fr auto; gap:8px; align-items:end}
 @media (max-width:720px){ #pcproot .form{grid-template-columns:1fr} }
+#pcproot .filtros{display:flex; gap:12px; flex-wrap:wrap; align-items:end}
+#pcproot .filtros label{margin:0 0 4px}
+#pcproot .filtros select{width:auto; min-width:150px; padding:8px 10px; font-size:15px}
+#pcproot table.sem{border-collapse:separate; border-spacing:0; font-variant-numeric:tabular-nums; width:max-content; min-width:100%}
+#pcproot table.sem th,#pcproot table.sem td{padding:7px 10px; border-bottom:1px solid var(--line); text-align:center; font-size:14px; white-space:nowrap}
+#pcproot table.sem thead th{font-size:13px; font-weight:700; color:var(--ink); border-bottom:2px solid var(--frame)}
+#pcproot table.sem th.lin{position:sticky; left:0; background:var(--card); text-align:left; font-weight:600; z-index:1}
+#pcproot table.sem th.lin small{display:block; font-weight:400; color:var(--mut); font-size:12px}
+#pcproot table.sem td small{display:block; font-size:11px; color:inherit; opacity:.7}
+#pcproot table.sem td.vazio{color:#9aa6b2}
+#pcproot table.sem tr.media td,#pcproot table.sem tr.media th{border-top:2px solid var(--frame); font-weight:700}
 @media (prefers-reduced-motion:reduce){ #pcproot button.seta i{transition:none} }
 </style>
 
@@ -110,7 +121,7 @@
   <div id="pcpApp" class="hidden">
     <header class="top"><div class="topin">
       <div class="brand"><span class="dot"></span><div><b>Portal PCP</b><span>Medicinal · produção</span></div></div>
-      <nav class="tabs"><button type="button" data-tab="painel" class="on">Painel</button><button type="button" data-tab="acessos" class="hidden">Acessos</button></nav>
+      <nav class="tabs"><button type="button" data-tab="painel" class="on">Painel</button><button type="button" data-tab="tempos">Tempos</button><button type="button" data-tab="acessos" class="hidden">Acessos</button></nav>
       <div class="row"><span class="carga" id="pcpCarga" title="Os dados do FórmulaCerta são carregados a cada 15 minutos, de segunda a sábado, das 7h às 21h">—</span><span class="quem" id="pcpQuem"></span><button class="sec mini" id="pcpSair" type="button">Sair</button></div>
     </div></header>
 
@@ -122,6 +133,21 @@
       </div>
       <div id="pcpBlocos"></div>
       <div class="err" id="pcpErrApp"></div>
+    </div>
+
+    <div class="wrap hidden" id="tab-tempos">
+      <div class="card">
+        <h2>Tempo por setor, semana a semana</h2>
+        <p class="sub">Quanto tempo cada fórmula ficou em cada setor, da entrada à saída, agrupado pela semana do ano (ISO, de segunda a domingo) em que entrou no setor. Horas úteis contam só o expediente (seg–sex 8h–21h, sáb 8h–12h, sem domingos e feriados). Ficha soma impressão e conferência; Rótulo soma coleta e conferência; Manipulação é o laboratório da espécie (interno, sachê, diferenciados ou externo). Passe o mouse no número para ver quantas fórmulas entraram na conta.</p>
+        <div class="filtros" style="margin-top:12px">
+          <div><label for="tpAno">Ano</label><select id="tpAno"></select></div>
+          <div><label for="tpGrupo">Laboratório</label><select id="tpGrupo"><option value="">Todos</option><option>Interno</option><option>Diferenciados</option><option>Externo</option><option>Sachês</option></select></div>
+          <div><label for="tpMedida">Medida</label><select id="tpMedida"><option value="mediana_util_h">Mediana em horas úteis</option><option value="media_util_h">Média em horas úteis</option><option value="mediana_corrida_h">Mediana em horas corridas</option></select></div>
+        </div>
+        <p class="sub" id="tpCobertura" style="margin-top:10px"></p>
+      </div>
+      <div class="card"><div class="tw" id="tpTabela"></div></div>
+      <div class="err" id="tpErr"></div>
     </div>
 
     <div class="wrap hidden" id="tab-acessos">
@@ -399,6 +425,72 @@ function tabela(g, rows){
   return t;
 }
 
+/* tempos por setor e semana */
+var SETORES = ['Ficha','Pesagem','Homogeneização','Manipulação','Conferência','Rótulo'];
+var TEMPOS = null;
+(function(){
+  var a = new Date().getFullYear(), s = $('tpAno');
+  for(var y = a; y >= a - 2; y--){ var o = document.createElement('option'); o.value = y; o.textContent = y; s.appendChild(o); }
+})();
+function dm(s){ var p = String(s).slice(0,10).split('-'); return p[2] + '/' + p[1]; }
+function h1(v){ return (v == null) ? '—' : Number(v).toLocaleString('pt-BR',{minimumFractionDigits:1, maximumFractionDigits:1}); }
+async function carregaTempos(){
+  $('tpErr').textContent = '';
+  $('tpTabela').replaceChildren(el('p','sub','Carregando…'));
+  try{
+    var g = $('tpGrupo').value || null;
+    TEMPOS = await rpc('pcp_tempos_semana', {p_ano: Number($('tpAno').value), p_grupo: g});
+    var c = TEMPOS && TEMPOS.cobertura_de ? 'Dados disponíveis de ' + new Date(TEMPOS.cobertura_de + 'T12:00:00').toLocaleDateString('pt-BR') + ' a ' + new Date(TEMPOS.cobertura_ate + 'T12:00:00').toLocaleDateString('pt-BR') + ' (data de entrada da requisição).' : '';
+    $('tpCobertura').textContent = c;
+    desenhaTempos();
+  }catch(e){ if(String(e.message) !== 'sessao') $('tpErr').textContent = e.message || 'Não foi possível carregar os tempos.'; }
+}
+function desenhaTempos(){
+  var box = $('tpTabela'); box.replaceChildren();
+  var med = $('tpMedida').value;
+  var linhas = (TEMPOS && TEMPOS.linhas) || [];
+  if(!linhas.length){ box.appendChild(el('p','sub','Sem dados para este ano e laboratório.')); return; }
+  var sem = {}, ordem = [], max = {};
+  linhas.forEach(function(r){
+    if(!sem[r.semana]){ sem[r.semana] = {de:r.de, ate:r.ate, v:{}}; ordem.push(r.semana); }
+    var s = sem[r.semana];
+    if(r.de < s.de) s.de = r.de; if(r.ate > s.ate) s.ate = r.ate;
+    s.v[r.setor] = r;
+    if(r[med] != null) max[r.setor] = Math.max(max[r.setor] || 0, Number(r[med]));
+  });
+  ordem.sort(function(a,b){ return b - a; });
+  var tipico = {};
+  SETORES.forEach(function(st){
+    var vs = ordem.map(function(w){ var r = sem[w].v[st]; return r && r[med] != null ? Number(r[med]) : null; }).filter(function(x){ return x != null; }).sort(function(a,b){ return a - b; });
+    tipico[st] = vs.length ? vs[Math.floor(vs.length / 2)] : null;
+  });
+  var t = el('table','sem'), hr = t.createTHead().insertRow();
+  hr.appendChild(el('th','lin','Semana'));
+  SETORES.forEach(function(s){ hr.appendChild(el('th', null, s)); });
+  var tb = t.createTBody();
+  ordem.forEach(function(w){
+    var s = sem[w], tr = tb.insertRow();
+    var th = el('th','lin','Semana ' + w); th.appendChild(el('small', null, dm(s.de) + ' a ' + dm(s.ate))); tr.appendChild(th);
+    SETORES.forEach(function(st){
+      var td = tr.insertCell(), r = s.v[st];
+      if(!r || r[med] == null){ td.textContent = '·'; td.className = 'vazio'; return; }
+      td.textContent = h1(r[med]) + ' h';
+      td.title = st + ' · semana ' + w + ': ' + n0(r.n) + ' fórmulas · mediana útil ' + h1(r.mediana_util_h) + ' h · média útil ' + h1(r.media_util_h) + ' h · mediana corrida ' + h1(r.mediana_corrida_h) + ' h';
+      td.appendChild(el('small', null, n0(r.n) + ' fórm.'));
+      var q = Number(r[med]) / (tipico[st] || 1);
+      if(q >= 2){ td.style.background = 'rgb(208,48,32)'; td.style.color = '#fff'; }
+      else if(q >= 1.5){ td.style.background = 'rgb(247,183,96)'; }
+      else if(q >= 1.2){ td.style.background = 'rgb(255,232,163)'; }
+    });
+  });
+  box.appendChild(t);
+  var leg = el('p','sub','Cor só nas semanas mais lentas que a semana típica do setor no ano (mediana das semanas): amarelo claro a partir de 20% acima, laranja a partir de 50% acima, vermelho a partir do dobro. Semana típica: ' + SETORES.map(function(st){ return st + ' ' + h1(tipico[st]) + ' h'; }).join(' · ') + '.');
+  box.appendChild(leg);
+}
+$('tpAno').addEventListener('change', carregaTempos);
+$('tpGrupo').addEventListener('change', carregaTempos);
+$('tpMedida').addEventListener('change', desenhaTempos);
+
 /* acessos (admin) */
 async function carregaAcessos(){
   $('acErr').textContent = '';
@@ -445,9 +537,9 @@ $('acSalvar').addEventListener('click', salvaAcesso);
 document.querySelectorAll('#pcproot nav.tabs button').forEach(function(b){
   b.addEventListener('click', function(){
     document.querySelectorAll('#pcproot nav.tabs button').forEach(function(x){ x.classList.toggle('on', x === b); });
-    $('tab-painel').classList.toggle('hidden', b.dataset.tab !== 'painel');
-    $('tab-acessos').classList.toggle('hidden', b.dataset.tab !== 'acessos');
+    ['painel','tempos','acessos'].forEach(function(t){ $('tab-' + t).classList.toggle('hidden', b.dataset.tab !== t); });
     if(b.dataset.tab === 'acessos') carregaAcessos();
+    if(b.dataset.tab === 'tempos') carregaTempos();
   });
 });
 

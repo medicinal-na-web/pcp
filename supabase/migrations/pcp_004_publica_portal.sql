@@ -7,7 +7,7 @@ do $$
 declare h text; b text;
 begin
   select string_agg(txt, '' order by id) into h from public._pcp_stage;
-  if md5(h) <> 'c281589cdf21856fb5c456d457b8a08e' then raise exception 'md5 do app não confere: %', md5(h); end if;
+  if md5(h) <> 'e1763444c6167fee4c3276275708344b' then raise exception 'md5 do app não confere: %', md5(h); end if;
   b := replace(encode(convert_to(h, 'UTF8'), 'base64'), E'\n', '');
   delete from public._brasa_parts_pcp;
   insert into public._brasa_parts_pcp (part, b)
