@@ -58,12 +58,22 @@ endereço do portal na Infalltech  (login por e-mail com código)
 5. **Hospedagem (Infalltech/CloudPanel):** publicar uma única vez o arquivo `portal/index.html` como site estático (ex.: `pcp.medicinalnaweb.com.br`), com DNS apontando para o servidor da Infalltech e certificado Let's Encrypt. Essa página só busca o app em `brasa_loader_pcp()`. Por isso as atualizações do portal são feitas só no banco (passo 4), sem mexer no servidor.
 6. **Acessos:** o administrador cadastra os e-mails na aba "Acessos" do portal.
 
+## Aba Tempos (tempo por setor por semana)
+
+- Tempo de cada fórmula em cada setor do portal: da primeira entrada até a última saída do setor. Fica em `pcp_requisicao.s_<setor>_ini/_min/_util` e é calculado pelo gatilho da tabela.
+  - Ficha = impressão + conferência.
+  - Rótulo = coleta + conferência.
+  - Manipulação = I_MANI, I_SACHE, I_DIFE ou E_MANI.
+- Agrupamento: semana ISO (segunda a domingo) em que a fórmula entrou no setor. A função é `pcp_tempos_semana(ano, laboratório)`.
+- Medidas: mediana e média em horas úteis, e mediana em horas corridas.
+- Histórico de 2026 recarregado pelo workflow `PCP - Recarga de histórico (manual)` (id `2BStJsCjY0Z9SUds`), uma quinzena por vez: um mês inteiro chegou a derrubar o n8n.
+
 ## Carga de dados (n8n, instância principal)
 
 - **Workflow:** `PCP - Carga da réplica para o Portal PCP (15 min)` (id `ZrCGzMDq4xds1O7d`), ativo.
 - **Quando roda:** nos minutos 3, 18, 33 e 48, de segunda a sábado, das 7h às 21h (America/Sao_Paulo).
 - **Janela:** requisições com DTENTR nos últimos 15 dias. Duas consultas simples na réplica (FC12100 e FC12500×FC12540); o pivô é feito no nó Code.
-- **Gravação:** `rpc/pcp_carga_lote` em lotes de 500. Os tempos são calculados no banco, pelo gatilho de `pcp_requisicao`.
+- **Gravação:** `rpc/pcp_carga_lote` em lotes de 100, com até 5 tentativas. Lotes de 500 estouravam o tempo-limite do Supabase depois do cálculo por setor e eram perdidos sem aviso. Os tempos são calculados no banco, pelo gatilho de `pcp_requisicao`.
 - **Credenciais:** réplica "Firebird (WIN1252) Replica Producao"; Supabase "Supabase FormulaCerta".
 - **Lições aprendidas:**
   - uma consulta única com CTE e window function em 90 dias estourou o tempo-limite;
