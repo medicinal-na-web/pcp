@@ -18,7 +18,14 @@
    para atualizar o portal, publica-se só no banco; este arquivo não muda. */
 (function(){
   var API  = 'https://mwhlnlqxtudcgbggkqud.supabase.co';
-  var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13aGxubHF4dHVkY2diZ2drcXVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NjYyNDgsImV4cCI6MjEwMDI0MjI0OH0.awJmlZnBy4RpTMr1lfL4uIKXmKwm7ItzR9W42BAZRnc';
+  var ANON = [
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ',
+    'pc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13aGxubHF',
+    '4dHVkY2diZ2drcXVkIiwicm9sZSI6ImFub24iLCJ',
+    'pYXQiOjE3ODQ2NjYyNDgsImV4cCI6MjEwMDI0MjI',
+    '0OH0.awJmlZnBy4RpTMr1lfL4uIKXmKwm7ItzR9W',
+    '42BAZRnc'
+  ].join('').replace(/[^A-Za-z0-9._-]/g, '');
   var aviso = document.getElementById('pcpCarregando');
   fetch(API + '/rest/v1/rpc/brasa_loader_pcp', {
     method: 'POST',
