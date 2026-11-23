@@ -3,7 +3,7 @@
    Todo CSS escopado sob #pcproot: nada vaza para o site. */
 #pcproot{
   --bg:#f2f4f7; --card:#fff; --ink:#111a24; --mut:#5d6b7a; --line:#dde3ea;
-  --brand:#1f4e8c; --brand2:#2d6cc0; --lab:#2e7d5b; --labbg:#e6f2ec;
+  --brand:#1f4e8c; --brand2:#2d6cc0; --lab:#2e7d5b; --labbg:#e6f2ec; --frame:#8b97a5;
   --ok:#1f7a4d; --err:#b3261e; --bad:#b3261e;
   --shadow:0 1px 2px rgba(17,26,36,.06),0 8px 24px rgba(17,26,36,.06);
   --radius:14px;
@@ -62,10 +62,14 @@
 #pcproot table.mapa td.vazio{color:#9aa6b2}
 #pcproot table.mapa td.forte{font-weight:700}
 #pcproot table.mapa td.tot{font-weight:600}
-#pcproot table.mapa .lab{background:var(--labbg)}
-#pcproot table.mapa .lab-ini{border-left:2px solid var(--lab)} #pcproot table.mapa .lab-fim{border-right:2px solid var(--lab)}
-#pcproot table.mapa tr.grupos th{border-bottom:none; padding:4px 0 0}
-#pcproot table.mapa th.lab-titulo{border-top:2px solid var(--lab); color:var(--lab); font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:6px 4px; border-radius:8px 8px 0 0}
+#pcproot table.mapa .g-ini{border-left:2px solid var(--frame)} #pcproot table.mapa .g-fim{border-right:2px solid var(--frame)}
+#pcproot table.mapa .lab{--frame:var(--lab)}
+#pcproot table.mapa td.lab,#pcproot table.mapa thead th.lab{background:var(--labbg)}
+#pcproot table.mapa tr.grupos th{border-bottom:none; padding:8px 4px 6px}
+#pcproot table.mapa th.gtit{border-top:2px solid var(--frame); border-left:2px solid var(--frame); border-right:2px solid var(--frame); border-radius:8px 8px 0 0; color:var(--ink); font-size:14px; font-weight:700; white-space:normal; line-height:1.15}
+#pcproot table.mapa th.gtit small{display:block; font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--lab)}
+#pcproot table.mapa thead th.sub{font-size:11px; font-weight:400; color:var(--mut)}
+#pcproot table.mapa tr.total td.g-ini,#pcproot table.mapa tr.total td.g-fim,#pcproot table.mapa tr.total td.gm{border-bottom:2px solid var(--frame)}
 #pcproot table.mapa tr.dia th.lin{font-weight:600}
 #pcproot table.mapa tr.dia td{font-size:15px}
 #pcproot table.mapa tr.d0 th.lin{font-size:18px}
@@ -113,7 +117,7 @@
     <div class="wrap" id="tab-painel">
       <div class="card status">
         <div><h2>Fórmulas em produção por laboratório</h2>
-        <p class="sub">Da Ficha ao Rótulo, com o limbo entre os setores (saiu de um e ainda não entrou no próximo). Hoje (D0) aparece aberto por faixa de retirada; as outras datas abrem pela seta. Cada horário entra na próxima faixa fixa: 16h loja, 18h entrega manhã, 19h entrega tarde, 20h Sedex 67, 21h Sedex MaisCabello, 22h Sedex. Cor: do azul (poucas fórmulas) ao vermelho (concentração).</p></div>
+        <p class="sub">Da Ficha ao Rótulo, com o limbo entre os setores (saiu de um e ainda não entrou no próximo). Hoje (D0) aparece aberto por faixa de retirada; as outras datas abrem pela seta. Cada horário entra na próxima faixa fixa: 16h loja, 18h entrega manhã, 19h entrega tarde, 20h Sedex 67, 21h Sedex MaisCabello, 22h Sedex. Cada setor aparece numa moldura junto com o seu limbo; a manipulação, em verde. Cor só onde há concentração: do amarelo ao vermelho.</p></div>
         <div class="row"><span class="quem" id="pcpAtual">—</span><button class="sec mini" id="pcpAtualizar" type="button">Atualizar</button></div>
       </div>
       <div id="pcpBlocos"></div>
@@ -238,7 +242,9 @@ var GRUPOS = [
   {nome:'Sachês', esp:'espécie 15', fluxo:['Ficha','Pesagem','Homogeneiz.','Manipulação','Conferência','Rótulo']}
 ];
 var ORDEM = ['D0','D1','D2','D3','D4','D5','D6+','Atrasada'];
-var CORES = [[207,227,247],[127,179,230],[247,211,107],[240,138,60],[215,48,31],[153,0,13]];
+/* calor só onde há concentração: abaixo de 25% do maior valor a célula fica branca */
+var CORTE = 0.25;
+var CORES = [[255,232,163],[247,183,96],[236,122,52],[208,48,32],[150,10,16]];
 function calor(p){
   p = Math.max(0, Math.min(1, p)); var x = p * (CORES.length - 1); var i = Math.min(CORES.length - 2, Math.floor(x)); var f = x - i;
   var a = CORES[i], b = CORES[i+1];
@@ -316,8 +322,12 @@ function tabela(g, rows){
     cols.push({setor:s, tipo:'setor', lab:lab});
     if(i < arr.length - 1) cols.push({setor:s, tipo:'limbo', lab:false});
   });
-  cols.forEach(function(c, i){ c.ini = c.lab && !(cols[i-1] && cols[i-1].lab); c.fim = c.lab && !(cols[i+1] && cols[i+1].lab); });
-  function labCls(e, c){ if(c.lab){ e.classList.add('lab'); if(c.ini) e.classList.add('lab-ini'); if(c.fim) e.classList.add('lab-fim'); } }
+  cols.forEach(function(c, i){
+    c.lab = c.setor === 'Manipulação' || c.setor === 'Manip. externo';
+    c.ini = c.tipo === 'setor';
+    c.fim = c.tipo === 'limbo' || !(cols[i+1] && cols[i+1].tipo === 'limbo');
+  });
+  function labCls(e, c){ if(c.lab) e.classList.add('lab'); if(c.ini) e.classList.add('g-ini'); if(c.fim) e.classList.add('g-fim'); if(!c.ini && !c.fim) e.classList.add('gm'); }
   var porHora = {}, porDia = {}, horas = {};
   rows.forEach(function(r){
     var kh = r.retirada + '|' + r.horario + '|' + r.setor + '|' + r.tipo; porHora[kh] = (porHora[kh] || 0) + r.n;
@@ -332,18 +342,19 @@ function tabela(g, rows){
   t.appendChild(cg);
   var th = t.createTHead();
   var gr = th.insertRow(); gr.className = 'grupos'; gr.appendChild(el('th','lin'));
-  var i = 0;
-  while(i < cols.length){
-    var h = el('th');
-    if(cols[i].lab){ h.className = 'lab lab-ini lab-fim lab-titulo'; h.textContent = 'Laboratório'; h.colSpan = 1; i++; }
-    else i++;
+  cols.forEach(function(c, i){
+    if(c.tipo !== 'setor') return;
+    var h = el('th', 'gtit');
+    h.colSpan = (cols[i+1] && cols[i+1].tipo === 'limbo') ? 2 : 1;
+    if(c.lab){ h.classList.add('lab'); h.appendChild(el('small', null, 'laboratório')); }
+    h.appendChild(document.createTextNode(c.setor));
     gr.appendChild(h);
-  }
+  });
   gr.appendChild(el('th'));
   var hr = th.insertRow(); hr.appendChild(el('th','lin','Retirada'));
   cols.forEach(function(c){
     var x = el('th');
-    if(c.tipo === 'setor'){ x.className = 'setor'; x.textContent = c.setor; }
+    if(c.tipo === 'setor'){ x.className = 'sub'; x.textContent = 'no setor'; }
     else { x.className = 'limbo'; x.title = 'Limbo: saiu de ' + c.setor + ' e aguarda a próxima etapa'; x.appendChild(el('span', null, 'limbo')); }
     labCls(x, c); hr.appendChild(x);
   });
@@ -352,7 +363,10 @@ function tabela(g, rows){
   function pinta(td, v, max){
     if(!v){ td.textContent = '·'; td.classList.add('vazio'); return; }
     td.textContent = n0(v);
-    var c = calor(Math.sqrt(v / max)); td.style.background = 'rgb(' + c.join(',') + ')';
+    var p = v / max;
+    if(p < CORTE) return;
+    td.classList.remove('vazio');
+    var c = calor((p - CORTE) / (1 - CORTE)); td.style.background = 'rgb(' + c.join(',') + ')';
     var lum = (0.299*c[0] + 0.587*c[1] + 0.114*c[2]) / 255;
     td.style.color = lum < 0.55 ? '#fff' : '#1a1a1a'; if(lum < 0.55) td.classList.add('forte');
   }
