@@ -39,6 +39,8 @@
 #pcproot nav.tabs button{background:transparent; color:var(--mut); border:1px solid transparent; padding:7px 12px; font-size:14px}
 #pcproot nav.tabs button.on{background:var(--bg); color:var(--ink); border-color:var(--line)}
 #pcproot .quem{font-size:13px; color:var(--mut)}
+#pcproot .carga{font-size:13px; font-weight:600; padding:6px 10px; border-radius:999px; background:#e7f4ec; color:#1f7a4d; white-space:nowrap}
+#pcproot .carga.atrasada{background:#fdecea; color:#b3261e}
 #pcproot .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px}
 #pcproot h2{font-size:20px}
 #pcproot .status{display:flex; gap:12px; flex-wrap:wrap; align-items:baseline; justify-content:space-between}
@@ -105,7 +107,7 @@
     <header class="top"><div class="topin">
       <div class="brand"><span class="dot"></span><div><b>Portal PCP</b><span>Medicinal · produção</span></div></div>
       <nav class="tabs"><button type="button" data-tab="painel" class="on">Painel</button><button type="button" data-tab="acessos" class="hidden">Acessos</button></nav>
-      <div class="row"><span class="quem" id="pcpQuem"></span><button class="sec mini" id="pcpSair" type="button">Sair</button></div>
+      <div class="row"><span class="carga" id="pcpCarga" title="Os dados do FórmulaCerta são carregados a cada 15 minutos, de segunda a sábado, das 7h às 21h">—</span><span class="quem" id="pcpQuem"></span><button class="sec mini" id="pcpSair" type="button">Sair</button></div>
     </div></header>
 
     <div class="wrap" id="tab-painel">
@@ -255,9 +257,35 @@ async function carrega(){
     DADOS = await rpc('pcp_painel', {});
     var at = DADOS && DADOS.atualizado_em ? new Date(DADOS.atualizado_em) : null;
     $('pcpAtual').textContent = at ? 'Dados do FórmulaCerta de ' + at.toLocaleDateString('pt-BR') + ' às ' + at.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : 'Sem carga de dados';
+    seloCarga(at);
     desenhaBlocos();
   }catch(e){ if(String(e.message) !== 'sessao') $('pcpErrApp').textContent = e.message || 'Não foi possível carregar o painel.'; }
   finally{ $('pcpAtualizar').disabled = false; }
+}
+/* agenda da carga: minutos 3, 18, 33 e 48, das 7h às 21h, de segunda a sábado */
+var MIN_CARGA = [3,18,33,48];
+function noHorario(d){ var w = d.getDay(), h = d.getHours(); return w !== 0 && h >= 7 && h <= 21; }
+function proximaCarga(d){
+  var t = new Date(d.getTime()); t.setSeconds(0,0);
+  for(var i = 0; i < 4*24*60; i++){
+    t = new Date(t.getTime() + 60000);
+    if(noHorario(t) && MIN_CARGA.indexOf(t.getMinutes()) >= 0) return t;
+  }
+  return null;
+}
+function hhmm(d){ return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+function quando(d, ref){
+  var mesmoDia = d.toDateString() === ref.toDateString();
+  return mesmoDia ? hhmm(d) : d.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','') + ' ' + hhmm(d);
+}
+function seloCarga(at){
+  var el = $('pcpCarga'), agora = new Date();
+  if(!at){ el.textContent = 'Sem carga de dados'; el.classList.add('atrasada'); return; }
+  var prox = proximaCarga(agora);
+  var minutos = (agora - at) / 60000;
+  var atrasada = noHorario(agora) && minutos > 35;
+  el.classList.toggle('atrasada', atrasada);
+  el.textContent = 'Última carga ' + quando(at, agora) + (atrasada ? ' · atrasada' : '') + (prox ? ' · próxima ' + quando(prox, agora) : '');
 }
 function desenhaBlocos(){
   var box = $('pcpBlocos');
